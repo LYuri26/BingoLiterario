@@ -61,7 +61,7 @@
 }
 
 /* Responsividade */
-@media (max-width: 550px) {
+@media (max-width: 550px) { 
   .lobby-container {
     padding: 0 8px;
   }
