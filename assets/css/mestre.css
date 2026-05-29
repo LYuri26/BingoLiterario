@@ -1,0 +1,303 @@
+/* ===================== MESTRE - PAINEL DE CONTROLE ===================== */
+/* Design limpo, responsivo, animações suaves */
+
+/* ---------- VARIÁVEIS ---------- */
+:root {
+  --master-primary: #ffb347;
+  --master-primary-dark: #e67e22;
+  --master-secondary: #2c3e50;
+  --master-success: #2ecc71;
+  --master-danger: #e74c3c;
+  --master-info: #3498db;
+  --master-bg-light: #fef9e8;
+  --master-gray: #f8f9fc;
+  --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+  --transition-master: all 0.2s ease;
+}
+
+/* Container principal */
+.mestre-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 16px;
+  width: 100%;
+  animation: fadeSlideIn 0.4s ease-out;
+}
+
+/* ---------- GRID RESPONSIVO (2 colunas no desktop) ---------- */
+#mestrePanel .row {
+  display: flex;
+  flex-direction: column;
+  gap: 1.8rem;
+}
+
+@media (min-width: 768px) {
+  #mestrePanel .row {
+    flex-direction: row;
+    gap: 2rem;
+  }
+  #mestrePanel .col-md-6 {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+/* ---------- CARDS ---------- */
+.card {
+  border: none;
+  border-radius: 32px;
+  background: white;
+  overflow: hidden;
+  box-shadow: var(--card-shadow);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 30px -12px rgba(0, 0, 0, 0.12);
+}
+
+.card-header {
+  padding: 1.1rem 1.5rem;
+  background: var(--master-bg-light);
+  border-bottom: 2px solid #ffe0a3;
+}
+
+.card-header h4 {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--master-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+}
+
+/* Badges modernos */
+.badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.4rem 0.9rem;
+  border-radius: 40px;
+  letter-spacing: 0.3px;
+  background: rgba(0,0,0,0.05);
+  color: #2c3e50;
+}
+
+/* ---------- BOTÃO SORTEAR ---------- */
+.btn-sortear {
+  background: linear-gradient(95deg, var(--master-primary), #ffcc80);
+  border: none;
+  font-weight: 800;
+  font-size: 1.25rem;
+  padding: 14px 18px;
+  border-radius: 60px;
+  color: #2c1a0c;
+  box-shadow: 0 5px 0 #b4621a;
+  transition: 0.07s linear;
+  width: 100%;
+}
+
+.btn-sortear:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #b4621a;
+}
+
+/* ---------- PERGUNTA ATUAL (DESTAQUE) ---------- */
+#perguntaAtual {
+  background: #fffbe6;
+  border-left: 6px solid var(--master-primary);
+  border-radius: 24px;
+  padding: 1.2rem;
+  margin-top: 1.2rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+}
+
+#textoPergunta {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #2c3e50;
+  word-break: break-word;
+}
+
+#textoResposta {
+  font-weight: 600;
+  color: var(--master-success);
+  background: #e9f7ef;
+  display: inline-block;
+  padding: 0.2rem 0.8rem;
+  border-radius: 30px;
+  margin-top: 8px;
+  font-size: 0.95rem;
+}
+
+/* ---------- HISTÓRICO (scroll elegante) ---------- */
+#historicoLista {
+  max-height: 360px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.historico-item {
+  background: #fefaf2;
+  border-left: 4px solid var(--master-info);
+  padding: 0.8rem 1rem;
+  margin-bottom: 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  transition: 0.1s;
+  word-break: break-word;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+}
+
+.historico-item:hover {
+  background: #fff5e6;
+  transform: translateX(3px);
+}
+
+.historico-item strong {
+  color: var(--master-info);
+  font-weight: 700;
+}
+
+/* Custom scrollbar */
+#historicoLista::-webkit-scrollbar {
+  width: 5px;
+}
+#historicoLista::-webkit-scrollbar-track {
+  background: #f0eada;
+  border-radius: 10px;
+}
+#historicoLista::-webkit-scrollbar-thumb {
+  background: var(--master-primary);
+  border-radius: 10px;
+}
+
+/* ---------- LISTA DE JOGADORES ---------- */
+#listaJogadoresMestre {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.list-group-item {
+  background: white;
+  border-bottom: 1px solid #f0e3cf;
+  padding: 1rem 1.2rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.8rem;
+  transition: background 0.15s;
+}
+
+.list-group-item:hover {
+  background: #fffcf5;
+}
+
+.list-group-item .fw-bold {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #3b2a1f;
+}
+
+/* Status badges */
+.badge.bg-success {
+  background: #27ae60 !important;
+  color: white;
+}
+.badge.bg-danger {
+  background: #e67e22 !important; /* laranja mais harmonioso */
+  color: white;
+}
+
+/* Jogador eliminado (riscado suave) */
+.list-group-item.text-decoration-line-through {
+  opacity: 0.7;
+  background: #f9f6ef;
+}
+.list-group-item.text-decoration-line-through .fw-bold {
+  text-decoration: line-through;
+  color: #999;
+}
+
+/* ---------- BOTÃO FINALIZAR ---------- */
+#btnFinalizar {
+  background: linear-gradient(95deg, var(--master-danger), #c0392b);
+  font-size: 1.1rem;
+  font-weight: bold;
+  padding: 14px;
+  border-radius: 60px;
+  border: none;
+  color: white;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  transition: 0.15s;
+}
+#btnFinalizar:active {
+  transform: scale(0.97);
+}
+
+/* ---------- RESPONSIVIDADE EXTREMA ---------- */
+@media (max-width: 768px) {
+  .mestre-container {
+    padding: 0 12px;
+  }
+  .card-header {
+    padding: 0.9rem 1rem;
+  }
+  .card-header h4 {
+    font-size: 1.1rem;
+  }
+  .btn-sortear {
+    font-size: 1rem;
+    padding: 12px;
+  }
+}
+
+@media (max-width: 576px) {
+  .list-group-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .d-flex.gap-2 {
+    align-self: flex-start;
+    flex-wrap: wrap;
+    margin-top: 6px;
+  }
+  .badge {
+    font-size: 0.65rem;
+    padding: 0.25rem 0.6rem;
+  }
+  #perguntaAtual {
+    padding: 0.8rem;
+  }
+  #textoPergunta {
+    font-size: 0.95rem;
+  }
+  .historico-item {
+    font-size: 0.75rem;
+    padding: 0.6rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .btn-sortear, #btnFinalizar {
+    font-size: 0.9rem;
+  }
+  .card-header h4 {
+    font-size: 0.9rem;
+  }
+}
+
+/* ---------- ANIMAÇÃO DE ENTRADA ---------- */
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
