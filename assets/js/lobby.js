@@ -1,5 +1,14 @@
 // lobby.js - Sistema de sala única com regras do código original (bloqueio quando finalizado)
-import { db, ref, set, get, onValue, update, remove, SALA_ID } from './firebase-init.js';
+import {
+  db,
+  ref,
+  set,
+  get,
+  onValue,
+  update,
+  remove,
+  SALA_ID,
+} from "./firebase-init.js";
 
 function getParameterByName(name) {
   const urlParams = new URLSearchParams(window.location.search);
@@ -14,7 +23,7 @@ async function garantirSala() {
   const snap = await get(salaRef);
   if (!snap.exists()) {
     // Cria a sala com status 'aguardando'
-    await set(salaRef, { status: 'aguardando', criadoEm: Date.now() });
+    await set(salaRef, { status: "aguardando", criadoEm: Date.now() });
     console.log("✅ Sala criada no Firebase.");
   }
   // Se a sala já existe, NÃO reseta automaticamente (mantém o status atual)
@@ -22,11 +31,16 @@ async function garantirSala() {
 
 // ========== MESTRE: REINICIAR O JOGO (LIMPA DADOS E VOLTA PARA AGUARDANDO) ==========
 async function reiniciarJogo() {
-  if (!confirm("⚠️ Reiniciar o jogo apagará todos os dados atuais (jogadores, sorteio, histórico). Deseja continuar?")) return;
+  if (
+    !confirm(
+      "⚠️ Reiniciar o jogo apagará todos os dados atuais (jogadores, sorteio, histórico). Deseja continuar?",
+    )
+  )
+    return;
   try {
     const salaRef = ref(db, `salas/${SALA_ID}`);
     // Reseta o status para 'aguardando'
-    await update(salaRef, { status: 'aguardando', criadoEm: Date.now() });
+    await update(salaRef, { status: "aguardando", criadoEm: Date.now() });
     // Remove todos os jogadores
     const jogadoresRef = ref(db, `salas/${SALA_ID}/jogadores`);
     await set(jogadoresRef, null);
@@ -51,7 +65,7 @@ async function reiniciarJogo() {
 async function iniciarJogo() {
   const salaRef = ref(db, `salas/${SALA_ID}`);
   const salaSnap = await get(salaRef);
-  if (!salaSnap.exists() || salaSnap.val().status !== 'aguardando') {
+  if (!salaSnap.exists() || salaSnap.val().status !== "aguardando") {
     alert("O jogo não está em estado de espera. Não é possível iniciar.");
     return;
   }
@@ -59,7 +73,9 @@ async function iniciarJogo() {
   // Verifica se há jogadores na sala
   const jogadoresRef = ref(db, `salas/${SALA_ID}/jogadores`);
   const jogadoresSnap = await get(jogadoresRef);
-  const jogadores = jogadoresSnap.exists() ? Object.values(jogadoresSnap.val()) : [];
+  const jogadores = jogadoresSnap.exists()
+    ? Object.values(jogadoresSnap.val())
+    : [];
   if (jogadores.length === 0) {
     alert("Nenhum jogador na sala!");
     return;
@@ -75,18 +91,29 @@ async function iniciarJogo() {
   const perguntasEmbaralhadas = [...todasPerguntas];
   for (let i = perguntasEmbaralhadas.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [perguntasEmbaralhadas[i], perguntasEmbaralhadas[j]] = [perguntasEmbaralhadas[j], perguntasEmbaralhadas[i]];
+    [perguntasEmbaralhadas[i], perguntasEmbaralhadas[j]] = [
+      perguntasEmbaralhadas[j],
+      perguntasEmbaralhadas[i],
+    ];
   }
 
   // Salva estado local do mestre (para usar em mestre.js)
-  localStorage.setItem(`perguntas_${SALA_ID}`, JSON.stringify(perguntasEmbaralhadas));
+  localStorage.setItem(
+    `perguntas_${SALA_ID}`,
+    JSON.stringify(perguntasEmbaralhadas),
+  );
   localStorage.setItem(`historico_${SALA_ID}`, JSON.stringify([]));
   localStorage.setItem(`jogoIniciado_${SALA_ID}`, "true");
   localStorage.removeItem(`jogoFinalizado_${SALA_ID}`);
   localStorage.removeItem(`vencedor_${SALA_ID}`);
 
   // Atualiza status da sala no Firebase
-  await update(salaRef, { status: "jogando" });
+  // Atualiza status da sala no Firebase
+  await update(salaRef, {
+    status: "jogando",
+    timestampInicio: Date.now(),
+    timestampUltimoSorteio: Date.now(),
+  });
   window.location.href = "mestre.html";
 }
 
@@ -101,8 +128,10 @@ async function entrarComoJogador(nomeJogador) {
     const salaData = salaSnap.val();
 
     // Verifica se o jogo está em estado de espera (regra do código original)
-    if (salaData.status !== 'aguardando') {
-      alert("O jogo já começou ou foi finalizado. Não é possível entrar agora.");
+    if (salaData.status !== "aguardando") {
+      alert(
+        "O jogo já começou ou foi finalizado. Não é possível entrar agora.",
+      );
       return false;
     }
 
@@ -119,10 +148,10 @@ async function entrarComoJogador(nomeJogador) {
       online: true,
       presente: true,
       bingoCorreto: false,
-      ultimaAtividade: Date.now()
+      ultimaAtividade: Date.now(),
     });
 
-    sessionStorage.setItem('meuNome', nomeJogador);
+    sessionStorage.setItem("meuNome", nomeJogador);
     return true;
   } catch (error) {
     console.error("Erro ao entrar:", error);
@@ -145,9 +174,10 @@ function atualizarListaJogadoresMestre() {
     const data = snapshot.val() || {};
     jogadoresAtuais = Object.values(data);
     listaUl.innerHTML = "";
-    jogadoresAtuais.forEach(jog => {
+    jogadoresAtuais.forEach((jog) => {
       const li = document.createElement("li");
-      li.className = "list-group-item d-flex justify-content-between align-items-center";
+      li.className =
+        "list-group-item d-flex justify-content-between align-items-center";
       li.innerHTML = `<span>${escapeHtml(jog.nome)}</span>`;
       listaUl.appendChild(li);
     });
@@ -165,7 +195,7 @@ async function carregarLobby() {
     // Verifica o status atual da sala para mostrar botão de reiniciar se necessário
     const salaRef = ref(db, `salas/${SALA_ID}`);
     const salaSnap = await get(salaRef);
-    const status = salaSnap.exists() ? salaSnap.val().status : 'aguardando';
+    const status = salaSnap.exists() ? salaSnap.val().status : "aguardando";
 
     content.innerHTML = `
       <div class="card">
@@ -174,17 +204,20 @@ async function carregarLobby() {
           <h5 class="card-title">Jogadores na sala:</h5>
           <ul id="listaJogadores" class="list-group mb-3"></ul>
           <button id="btnIniciar" class="btn btn-success w-100 mb-2" disabled>🎬 Iniciar Jogo</button>
-          ${status === 'finalizado' ? '<button id="btnReiniciar" class="btn btn-warning w-100">🔄 Reiniciar Jogo (apagar dados)</button>' : ''}
+          ${status === "finalizado" ? '<button id="btnReiniciar" class="btn btn-warning w-100">🔄 Reiniciar Jogo (apagar dados)</button>' : ""}
         </div>
       </div>
     `;
     atualizarListaJogadoresMestre();
-    document.getElementById("btnIniciar").addEventListener("click", iniciarJogo);
-    if (status === 'finalizado') {
-      document.getElementById("btnReiniciar").addEventListener("click", reiniciarJogo);
+    document
+      .getElementById("btnIniciar")
+      .addEventListener("click", iniciarJogo);
+    if (status === "finalizado") {
+      document
+        .getElementById("btnReiniciar")
+        .addEventListener("click", reiniciarJogo);
     }
-  }
-  else if (role === "jogador") {
+  } else if (role === "jogador") {
     content.innerHTML = `
       <div class="card">
         <div class="card-header bg-success text-white"><h4 class="mb-0">🎮 Entrar no Jogo</h4></div>
@@ -205,12 +238,12 @@ async function carregarLobby() {
     onValue(salaRef, (snap) => {
       if (snap.exists()) {
         const status = snap.val().status;
-        if (status !== 'aguardando') {
+        if (status !== "aguardando") {
           btnEntrar.disabled = true;
           msgDiv.innerHTML = `<div class="alert alert-warning">⚠️ O jogo já começou ou foi finalizado. Não é possível entrar agora.</div>`;
         } else {
           btnEntrar.disabled = false;
-          msgDiv.innerHTML = '';
+          msgDiv.innerHTML = "";
         }
       }
     });
@@ -218,22 +251,27 @@ async function carregarLobby() {
     btnEntrar.addEventListener("click", async () => {
       const nome = nomeInput.value.trim();
       if (!nome) {
-        msgDiv.innerHTML = '<div class="alert alert-danger">Digite seu nome</div>';
+        msgDiv.innerHTML =
+          '<div class="alert alert-danger">Digite seu nome</div>';
         return;
       }
       const ok = await entrarComoJogador(nome);
       if (ok) {
         window.location.href = "jogador.html";
       } else {
-        msgDiv.innerHTML = '<div class="alert alert-danger">Falha ao entrar. Verifique se o jogo está em espera.</div>';
+        msgDiv.innerHTML =
+          '<div class="alert alert-danger">Falha ao entrar. Verifique se o jogo está em espera.</div>';
       }
     });
   }
 }
 
 function escapeHtml(str) {
-  if (!str) return '';
-  return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m]));
+  if (!str) return "";
+  return str.replace(
+    /[&<>]/g,
+    (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[m],
+  );
 }
 
 window.onload = carregarLobby;
